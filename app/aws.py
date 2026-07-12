@@ -10,11 +10,16 @@ def get_caller_identity():
     try:
         session = get_session()
         sts = session.client("sts")
-
         return sts.get_caller_identity()
-
-    except NoCredentialsError:
+    except (NoCredentialsError, ClientError):
         return None
 
-    except ClientError:
-        return None
+
+def get_region():
+    session = get_session()
+    return session.region_name
+
+
+def get_profile():
+    session = get_session()
+    return session.profile_name or "default"
