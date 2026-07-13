@@ -1,13 +1,28 @@
 import typer
 from rich import print
 from app.aws import get_caller_identity, get_region, get_profile
-
+from app.ebs import get_unattached_volumes
 app = typer.Typer()
 
 
 @app.command()
 def audit():
-    print("Starting AWS audit...")
+    print("[bold blue]Scanning AWS...[/bold blue]\n")
+
+    volumes = get_unattached_volumes()
+
+    if not volumes:
+        print("[green]✓ No unattached EBS volumes found.[/green]")
+        return
+
+    print(f"[yellow]Found {len(volumes)} unattached volume(s)[/yellow]\n")
+
+    for volume in volumes:
+        print(
+            f"ID: {volume['VolumeId']} | "
+            f"Size: {volume['Size']} GB | "
+            f"AZ: {volume['AvailabilityZone']}"
+        )
 
 
 @app.command()
